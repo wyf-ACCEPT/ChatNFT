@@ -1,16 +1,15 @@
-/build/
+build/
+contracts/build/
+node_modules/
+artifacts/
 
-/contracts/build/
-
-/node_modules/
+.prettierrc.json
 
 *.log
 *.swp
 
 .remixcache/
-
 .settings/
-
 .env
 .env.local
 
