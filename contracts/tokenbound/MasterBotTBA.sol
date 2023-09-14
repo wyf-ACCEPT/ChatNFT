@@ -15,9 +15,11 @@ contract MasterBotTokenBoundAccount is
     IERC6551Executable
 {
     uint256 public state;
+    IERC721[5] public slots;
 
     receive() external payable {}
 
+    /* -------- Functions for IERC6551, IERC1271 and IERC165 -------- */
     function execute(
         address to,
         uint256 value,
@@ -107,4 +109,5 @@ contract MasterBotTokenBoundAccount is
     function _isValidSigner(address signer) internal view returns (bool) {
         return signer == owner();
     }
+
 }
