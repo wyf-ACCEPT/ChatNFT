@@ -15,7 +15,6 @@ contract MasterBotTokenBoundAccount is
     IERC6551Executable
 {
     uint256 public state;
-    IERC721[5] public slots;
 
     receive() external payable {}
 
