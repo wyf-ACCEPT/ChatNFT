@@ -5,18 +5,18 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract Share {
-    uint256 public taxBasePoint; // usually 500 (5%)
+    uint256 public immutable taxBasePoint; // usually 500 (5%)
     uint256 public immutable decimals;
+    IERC20 public immutable masterToken;
     uint256 _totalSupply;
     mapping(address => uint256) _balanceOf;
-    IERC20 public masterToken;
 
     event Purchased(address indexed buyer);
     event Sold(address indexed seller);
 
-    constructor(address _masterToken, uint256 _taxBasePoint) {
-        decimals = IERC20Metadata(_masterToken).decimals();
-        masterToken = IERC20(_masterToken);
+    constructor(address _masterTokenAddress, uint256 _taxBasePoint) {
+        decimals = IERC20Metadata(_masterTokenAddress).decimals();
+        masterToken = IERC20(_masterTokenAddress);
         taxBasePoint = _taxBasePoint;
     }
 
