@@ -16,6 +16,7 @@ contract Slot is Ownable {
     IERC20 public immutable masterToken;
     IERC721 public immutable functionBot;
     mapping(address => MasterBotSlots) _slotsOf;
+    mapping(uint256 => address) _isInstalledOn;
 
     event Installed(
         address indexed masterBotTBA,
@@ -33,6 +34,10 @@ contract Slot is Ownable {
         installPrice = 10 * 10**decimals;
         masterToken = IERC20(_masterTokenAddress);
         functionBot = IERC721(_functionBotAddress);
+    }
+
+    function isInstalledOn(uint256 tokenId) public view returns (address) {
+        return _isInstalledOn[tokenId];
     }
 
     function slotsOf(address masterbot) public view returns (uint256[5] memory) {
@@ -57,6 +62,7 @@ contract Slot is Ownable {
         );
         functionBot.transferFrom(msg.sender, address(this), tokenId);
         _slotsOf[msg.sender].bots[slotId] = tokenId;
+        _isInstalledOn[tokenId] = msg.sender;
 
         emit Installed(msg.sender, slotId, tokenId);
         return true;
@@ -73,6 +79,7 @@ contract Slot is Ownable {
         uint256 tokenId = _slotsOf[msg.sender].bots[slotId];
         functionBot.transferFrom(address(this), msg.sender, tokenId);
         _slotsOf[msg.sender].bots[slotId] = 0;
+        _isInstalledOn[tokenId] = address(0);
 
         emit Uninstalled(msg.sender, slotId, tokenId);
         return true;
