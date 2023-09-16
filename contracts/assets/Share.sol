@@ -3,21 +3,21 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Share {
-    uint256 public immutable taxBasePoint; // usually 500 (5%)
+contract Share is Ownable {
+    uint256 public immutable taxBasePoint = 500;
     uint256 public immutable decimals;
     IERC20 public immutable masterToken;
-    uint256 _totalSupply;
     mapping(address => uint256) _balanceOf;
+    uint256 _totalSupply;
 
-    event Purchased(address indexed buyer);
-    event Sold(address indexed seller);
+    event Purchased(address indexed buyer, uint256 totalSupplyNow);
+    event Sold(address indexed seller, uint256 totalSupplyNow);
 
-    constructor(address _masterTokenAddress, uint256 _taxBasePoint) {
+    constructor(address _masterTokenAddress) {
         decimals = IERC20Metadata(_masterTokenAddress).decimals();
         masterToken = IERC20(_masterTokenAddress);
-        taxBasePoint = _taxBasePoint;
     }
 
     function totalSupply() public view returns (uint256) {
@@ -29,7 +29,7 @@ contract Share {
     }
 
     function purchase() public returns (bool) {
-        uint256 cost = (_totalSupply + 1) * 10 ** decimals;
+        uint256 cost = (_totalSupply + 1) * 10**decimals;
 
         require(
             masterToken.transferFrom(msg.sender, address(this), cost),
@@ -39,15 +39,15 @@ contract Share {
         _totalSupply += 1;
         _balanceOf[msg.sender] += 1;
 
-        emit Purchased(msg.sender);
+        emit Purchased(msg.sender, _totalSupply);
         return true;
     }
 
     function sell() public returns (bool) {
         require(_balanceOf[msg.sender] > 0, "You have no Share Tokens to sell");
 
-        uint256 reward = _totalSupply * 10 ** decimals;
-        uint256 tax = reward * taxBasePoint / 10000;
+        uint256 reward = _totalSupply * 10**decimals;
+        uint256 tax = (reward * taxBasePoint) / 10000;
 
         require(
             masterToken.transfer(msg.sender, reward - tax),
@@ -57,8 +57,11 @@ contract Share {
         _totalSupply -= 1;
         _balanceOf[msg.sender] -= 1;
 
-        emit Sold(msg.sender);
+        emit Sold(msg.sender, _totalSupply);
         return true;
     }
 
+    function _claimAll() public onlyOwner {
+        masterToken.transfer(owner(), masterToken.balanceOf(address(this)));
+    }
 }

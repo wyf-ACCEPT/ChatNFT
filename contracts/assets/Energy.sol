@@ -3,15 +3,16 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Energy {
+contract Energy is Ownable {
     struct MasterBotEnergy {
         uint256 lastUpdated;
         uint256 energyHistorical;
     }
 
-    uint256 public immutable decimals;
     uint256 public immutable FREQ = 1 days;
+    uint256 public immutable decimals;
     IERC20 public immutable masterToken;
     mapping(address => MasterBotEnergy) _energyOf;
 
@@ -51,5 +52,9 @@ contract Energy {
         } else {
             return 0;
         }
+    }
+
+    function _claimAll() public onlyOwner {
+        masterToken.transfer(owner(), masterToken.balanceOf(address(this)));
     }
 }
