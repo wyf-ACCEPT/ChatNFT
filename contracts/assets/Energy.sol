@@ -23,6 +23,19 @@ contract Energy is Ownable {
         masterToken = IERC20(_masterTokenAddress);
     }
 
+    function energyOf(address masterbot) public view returns (uint256) {
+        uint256 timeElapsed = block.timestamp -
+            _energyOf[masterbot].lastUpdated;
+        uint256 energyToDeduct = timeElapsed / FREQ;
+        uint256 energyHistorical = _energyOf[masterbot].energyHistorical;
+
+        if (energyHistorical >= energyToDeduct) {
+            return energyHistorical - energyToDeduct;
+        } else {
+            return 0;
+        }
+    }
+
     function charge() public returns (bool) {
         uint256 cost = 10**decimals;
         require(
@@ -39,19 +52,6 @@ contract Energy is Ownable {
 
         emit Charge(msg.sender, newEnergy);
         return true;
-    }
-
-    function energyOf(address masterbot) public view returns (uint256) {
-        uint256 timeElapsed = block.timestamp -
-            _energyOf[masterbot].lastUpdated;
-        uint256 energyToDeduct = timeElapsed / FREQ;
-        uint256 energyHistorical = _energyOf[masterbot].energyHistorical;
-
-        if (energyHistorical >= energyToDeduct) {
-            return energyHistorical - energyToDeduct;
-        } else {
-            return 0;
-        }
     }
 
     function _claimAll() public onlyOwner {

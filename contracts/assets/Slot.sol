@@ -35,6 +35,10 @@ contract Slot is Ownable {
         functionBot = IERC721(_functionBotAddress);
     }
 
+    function slotsOf(address masterbot) public view returns (uint256[5] memory) {
+        return _slotsOf[masterbot].bots;
+    }
+
     function installBot(uint256 slotId, uint256 tokenId) public returns (bool) {
         require(tokenId != 0, "FunctionBot #0 is the reserved one!");
         require(slotId < 5, "Invalid slot ID");
