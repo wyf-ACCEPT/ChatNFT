@@ -8,7 +8,8 @@
 │   │   ├── Energy.sol
 │   │   ├── FunctionBot.sol         // ERC721 NFT
 │   │   ├── MasterToken.sol         // ERC20 token
-│   │   └── Share.sol
+│   │   ├── Share.sol
+│   │   └── Slot.sol
 │   ├── interface
 │   │   ├── IERC6551Account.sol
 │   │   ├── IERC6551Executable.sol
