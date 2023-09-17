@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Assets is Ownable {
-    // Structs used for assets management.
+    /* ----------- Structs used for assets management. ----------- */
     struct MasterBotEnergy {
         uint256 lastUpdated;
         uint256 energyHistorical;
@@ -17,7 +17,7 @@ contract Assets is Ownable {
         uint256[5] bots; // To save 5 functionBots' tokenId.
     }
 
-    // Constant variables. Should double confirmed by admin.
+    /* -- Constant variables. Should double confirmed by admin. -- */
     uint256 public constant TAX_BASE_POINT = 500;
     uint256 public constant ENERGY_REDUCE_FREQ = 1 days;
     uint256 public constant CHARGE_PRICE = 1;
@@ -28,14 +28,14 @@ contract Assets is Ownable {
     IERC20 public immutable masterToken;
     IERC721 public immutable functionBot;
 
-    // State variables.
+    /* --------------------- State variables. --------------------- */
     uint256 _totalSupplyShare;
     mapping(address => uint256) _balanceOf;
     mapping(address => MasterBotEnergy) _energyOf;
     mapping(address => MasterBotSlots) _slotsOf;
     mapping(uint256 => address) _isInstalledOn;
 
-    // Events used for Share, Energy and Slots.
+    /* --------- Events used for Share, Energy and Slots. --------- */
     event SharePurchased(address indexed buyer, uint256 totalSupplyNow);
     event ShareSold(address indexed seller, uint256 totalSupplyNow);
     event Charge(address indexed masterbot, uint256 newEnergy);
@@ -58,7 +58,7 @@ contract Assets is Ownable {
         install_price_integer = INSTALL_PRICE * 10**decimals;
     }
 
-    // View functions.
+    /* ---------------------- View functions ---------------------- */
     function totalSupplyShare() public view returns (uint256) {
         return _totalSupplyShare;
     }
@@ -95,8 +95,8 @@ contract Assets is Ownable {
     {
         return _slotsOf[masterbot].bots;
     }
-    
-    // Functions for purchasing/selling Share-token.
+
+    /* -------- Functions for purchasing/selling Share-token. -------- */
     function purchase() public returns (bool) {
         uint256 cost = (_totalSupplyShare + 1) * 10**decimals;
 
@@ -130,10 +130,14 @@ contract Assets is Ownable {
         return true;
     }
 
-    // Function for charging for the MasterBot.
+    /* --------- Function for charging for the MasterBot. --------- */
     function charge() public returns (bool) {
         require(
-            masterToken.transferFrom(msg.sender, address(this), charge_price_integer),
+            masterToken.transferFrom(
+                msg.sender,
+                address(this),
+                charge_price_integer
+            ),
             "Transfer of MasterTokens failed"
         );
 
@@ -148,7 +152,7 @@ contract Assets is Ownable {
         return true;
     }
 
-    // Functions for installing/uninstalling a FunctionBot.
+    /* ---- Functions for installing/uninstalling a FunctionBot. ---- */
     function installBot(uint256 slotId, uint256 tokenId) public returns (bool) {
         require(tokenId != 0, "FunctionBot #0 is the reserved one!");
         require(slotId < 5, "Invalid slot ID");
@@ -162,7 +166,11 @@ contract Assets is Ownable {
         );
 
         require(
-            masterToken.transferFrom(msg.sender, address(this), install_price_integer),
+            masterToken.transferFrom(
+                msg.sender,
+                address(this),
+                install_price_integer
+            ),
             "Transfer of MasterTokens failed."
         );
         functionBot.transferFrom(msg.sender, address(this), tokenId);
@@ -178,7 +186,11 @@ contract Assets is Ownable {
         require(_slotsOf[msg.sender].bots[slotId] != 0, "Slot is empty.");
 
         require(
-            masterToken.transferFrom(msg.sender, address(this), install_price_integer),
+            masterToken.transferFrom(
+                msg.sender,
+                address(this),
+                install_price_integer
+            ),
             "Transfer of MasterTokens failed."
         );
         uint256 tokenId = _slotsOf[msg.sender].bots[slotId];
@@ -190,7 +202,7 @@ contract Assets is Ownable {
         return true;
     }
 
-    // Functions for admin.
+    /* ----------------------- Functions for admin. ----------------------- */
     function _claimAll() public onlyOwner {
         masterToken.transfer(owner(), masterToken.balanceOf(address(this)));
     }
