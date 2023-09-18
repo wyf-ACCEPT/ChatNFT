@@ -2,10 +2,13 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-toolbox/network-help
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import * as dotenv from "dotenv"
+import { MasterBotTokenBoundAccount__factory } from "../typechain-types"
 dotenv.config()
+
 
 const CHAIN_ID = ethers.toBigInt(process.env.CHAIN_ID!)
 const SALT = ethers.toBigInt(process.env.SALT!)
+
 
 describe("ERC6551 basic functions", function () {
   async function deployERC6551() {
@@ -18,7 +21,7 @@ describe("ERC6551 basic functions", function () {
     const MasterBotAccountImplementation = await ethers.deployContract("MasterBotTokenBoundAccount")
     const MasterBotRegistry = await ethers.deployContract("ERC6551Registry")
 
-    return { MasterBotNFT, MasterBotAccountImplementation, MasterBotRegistry }
+    return { MasterBotNFT, MasterBotAccountImplementation, MasterBotRegistry, owner, alice, bob }
   }
 
 
@@ -32,9 +35,9 @@ describe("ERC6551 basic functions", function () {
     expect(await MasterBotNFT.ownerOf(1)).to.equal(bob.address)
   })
 
-  
+
   it("MasterBot TBA's view functions should be executed successfully", async () => {
-    const { MasterBotNFT, MasterBotAccountImplementation, MasterBotRegistry } = await loadFixture(deployERC6551)
+    const { MasterBotNFT, MasterBotAccountImplementation, MasterBotRegistry, alice } = await loadFixture(deployERC6551)
 
     const tokenID = 0
 
@@ -46,7 +49,7 @@ describe("ERC6551 basic functions", function () {
       SALT,
     )
 
-    const MasterBotTBA_0 = await MasterBotRegistry.createAccount(
+    await MasterBotRegistry.createAccount(
       await MasterBotAccountImplementation.getAddress(),
       CHAIN_ID,
       await MasterBotNFT.getAddress(),
@@ -55,6 +58,11 @@ describe("ERC6551 basic functions", function () {
       new Uint8Array(),
     )
 
+    const MasterBotTBA_0 = await ethers.getContractAt(
+      "MasterBotTokenBoundAccount",
+      MasterBotTBA_0_address,
+    )
+    expect((await MasterBotTBA_0.token())[1]).to.equal(await MasterBotNFT.getAddress())
 
 
   })
