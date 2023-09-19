@@ -97,6 +97,10 @@ contract Assets is Ownable {
         return _slotsOf[masterbot].bots;
     }
 
+    function adminBalance() public view returns (uint256) {
+        return _adminBalance;
+    }
+
     /* -------- Functions for purchasing/selling Share-token. -------- */
     function purchase() public returns (bool) {
         uint256 cost = (_totalSupplyShare + 1) * 10**decimals;

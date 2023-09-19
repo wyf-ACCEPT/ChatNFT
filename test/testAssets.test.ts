@@ -33,31 +33,36 @@ describe("test the functions related to assets management", function () {
 
 
   it("Assets functions test: part `Share`", async function () {
-    const { MasterToken, Assets, carol, david } = await loadFixture(deployAssets)
+    const { MasterToken, Assets, owner, carol, david } = await loadFixture(deployAssets)
 
     await Assets.connect(carol).purchase()  // 400 - 1 = 399
     await Assets.connect(carol).purchase()  // 399 - 2 = 397
     expect(await MasterToken.balanceOf(carol.address)).to.equal(ethers.parseEther('397'))
-
     await Assets.connect(david).purchase()  // 400 - 3 = 397
     await Assets.connect(david).purchase()  // 397 - 4 = 393
     expect(await MasterToken.balanceOf(david.address)).to.equal(ethers.parseEther('393'))
 
+    expect(await Assets.adminBalance()).to.equal(ethers.parseEther('0'))
+
     await Assets.connect(carol).sell()      // 397 + 4 * 95% = 400.8
     expect(await MasterToken.balanceOf(carol.address)).to.equal(ethers.parseEther('400.8'))
-
     await Assets.connect(david).sell()      // 393 + 3 * 95% = 395.85
     expect(await MasterToken.balanceOf(david.address)).to.equal(ethers.parseEther('395.85'))
-
     await Assets.connect(carol).sell()      // 400.8 + 2 * 95% = 402.7
     expect(await MasterToken.balanceOf(carol.address)).to.equal(ethers.parseEther('402.7'))
-
     await expect(Assets.connect(carol).sell())
       .to.be.revertedWith('You have no Share Tokens to sell')
+
+    // (4 + 3 + 2) * 5% = 0.45
+    expect(await Assets.adminBalance()).to.equal(ethers.parseEther('0.45'))
+
+    await Assets._claimAll()
+    expect(await Assets.adminBalance()).to.equal(ethers.parseEther('0'))
+    expect(await MasterToken.balanceOf(owner.address)).to.equal(ethers.parseEther('0.45'))
   })
 
 
   it("Assets function test: part `Energy`", async function () {
-
+    
   })
 })
