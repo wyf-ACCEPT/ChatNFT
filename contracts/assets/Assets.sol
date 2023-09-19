@@ -30,6 +30,7 @@ contract Assets is Ownable {
 
     /* --------------------- State variables. --------------------- */
     uint256 _totalSupplyShare;
+    uint256 _adminBalance;
     mapping(address => uint256) _balanceOf;
     mapping(address => MasterBotEnergy) _energyOf;
     mapping(address => MasterBotSlots) _slotsOf;
@@ -122,6 +123,7 @@ contract Assets is Ownable {
             masterToken.transfer(msg.sender, reward - tax),
             "Transfer of MasterTokens failed"
         );
+        _adminBalance += tax;
 
         _totalSupplyShare -= 1;
         _balanceOf[msg.sender] -= 1;
@@ -140,6 +142,7 @@ contract Assets is Ownable {
             ),
             "Transfer of MasterTokens failed"
         );
+        _adminBalance += charge_price_integer;
 
         uint256 currentEnergy = energyOf(msg.sender);
         uint256 newEnergy = currentEnergy + 20 < 100 ? currentEnergy + 20 : 100;
@@ -173,6 +176,7 @@ contract Assets is Ownable {
             ),
             "Transfer of MasterTokens failed."
         );
+        _adminBalance += install_price_integer;
         functionBot.transferFrom(msg.sender, address(this), tokenId);
         _slotsOf[msg.sender].bots[slotId] = tokenId;
         _isInstalledOn[tokenId] = msg.sender;
@@ -193,6 +197,7 @@ contract Assets is Ownable {
             ),
             "Transfer of MasterTokens failed."
         );
+        _adminBalance += install_price_integer;
         uint256 tokenId = _slotsOf[msg.sender].bots[slotId];
         functionBot.transferFrom(address(this), msg.sender, tokenId);
         _slotsOf[msg.sender].bots[slotId] = 0;
@@ -204,6 +209,7 @@ contract Assets is Ownable {
 
     /* ----------------------- Functions for admin. ----------------------- */
     function _claimAll() public onlyOwner {
-        masterToken.transfer(owner(), masterToken.balanceOf(address(this)));
+        masterToken.transfer(owner(), _adminBalance);
+        _adminBalance = 0;
     }
 }
