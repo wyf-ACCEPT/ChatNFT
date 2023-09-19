@@ -1,12 +1,8 @@
-import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers"
+import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers"
 import { expect } from "chai"
 import { ethers } from "hardhat"
 import * as dotenv from "dotenv"
 dotenv.config()
-
-
-const CHAIN_ID = ethers.toBigInt(process.env.CHAIN_ID!)
-const SALT = ethers.toBigInt(process.env.SALT!)
 
 
 describe("test the functions related to assets management", function () {
@@ -14,19 +10,30 @@ describe("test the functions related to assets management", function () {
   async function deployAssets() {
     const [owner, carol, david] = await ethers.getSigners()
 
+    // Deploy contracts
     const MasterToken = await ethers.deployContract('MasterToken')
     const FunctionBot = await ethers.deployContract('FunctionBot')
-
     const AssetsFactory = await ethers.getContractFactory('Assets')
     const Assets = await AssetsFactory.deploy(
       await MasterToken.getAddress(), await FunctionBot.getAddress()
     )
 
+    // Mint MasterToken to Carol & David
     const amount = ethers.parseEther('400')
     await MasterToken.mint(carol.address, amount)
     await MasterToken.mint(david.address, amount)
     await MasterToken.connect(carol).approve(await Assets.getAddress(), amount)
     await MasterToken.connect(david).approve(await Assets.getAddress(), amount)
+
+    // Mint FunctionBot NFT to Carol & David
+    await FunctionBot.safeMint(carol.address, "")   // #0
+    await FunctionBot.safeMint(carol.address, "")   // #1
+    await FunctionBot.safeMint(carol.address, "")   // #2
+    await FunctionBot.safeMint(david.address, "")   // #3
+    await FunctionBot.connect(carol).approve(await Assets.getAddress(), 0)
+    await FunctionBot.connect(carol).approve(await Assets.getAddress(), 1)
+    await FunctionBot.connect(carol).approve(await Assets.getAddress(), 2)
+    await FunctionBot.connect(david).approve(await Assets.getAddress(), 3)
 
     return { MasterToken, FunctionBot, Assets, owner, carol, david }
   }
@@ -63,6 +70,57 @@ describe("test the functions related to assets management", function () {
 
 
   it("Assets function test: part `Energy`", async function () {
-    
+    const { MasterToken, Assets, owner, carol } = await loadFixture(deployAssets)
+
+    // Charge for the first time
+    expect(await Assets.energyOf(carol.address)).to.equal(0)
+    await Assets.connect(carol).charge()    // Spend 1 $MTT for charging
+    expect(await Assets.energyOf(carol.address)).to.equal(20)
+    expect(await MasterToken.balanceOf(carol.address)).to.equal(ethers.parseEther('399'))
+
+    // After 5 days...
+    await time.increase(5 * 24 * 60 * 60)
+    expect(await Assets.energyOf(carol.address)).to.equal(15)
+    await Assets.connect(carol).charge()
+    expect(await Assets.energyOf(carol.address)).to.equal(35)
+
+    for (var _ of [0, 0, 0, 0]) { await Assets.connect(carol).charge() }
+    expect(await Assets.energyOf(carol.address)).to.equal(100)
+    await expect(Assets.connect(carol).charge()).to.be.revertedWith("No need to charge!")
+
+    // After 105 days...
+    await time.increase(105 * 24 * 60 * 60)
+    expect(await Assets.energyOf(carol.address)).to.equal(0)
+    await Assets.connect(carol).charge()
+    expect(await Assets.energyOf(carol.address)).to.equal(20)
+
+    await Assets._claimAll()
+    expect(await MasterToken.balanceOf(owner.address)).to.equal(ethers.parseEther('7'))
   })
+
+
+  it("Assets function test: part `Slots`", async function () {
+    const { MasterToken, FunctionBot, Assets, owner, carol } = await loadFixture(deployAssets)
+
+    await expect(Assets.connect(carol).installBot(3, 3))
+      .to.be.revertedWith("You do not own this bot!")
+    await expect(Assets.connect(carol).installBot(3, 0))
+      .to.be.revertedWith("FunctionBot #0 is the reserved one!")
+    await expect(Assets.connect(carol).installBot(5, 1))
+      .to.be.revertedWith("Invalid slot ID")
+    await Assets.connect(carol).installBot(3, 1)
+    await expect(Assets.connect(carol).installBot(3, 2))
+      .to.be.revertedWith("Slot is already occupied.")
+
+    expect(await Assets.isInstalledOn(1)).to.equal(carol.address)
+    expect((await Assets.slotsOf(carol.address))[3]).to.equal(1)
+
+    await expect(Assets.connect(carol).uninstallBot(0))
+      .to.be.revertedWith("Slot is empty.")
+    await Assets.connect(carol).uninstallBot(3)
+
+    expect(await Assets.isInstalledOn(1)).to.equal(ethers.ZeroAddress)
+    expect((await Assets.slotsOf(carol.address))[3]).to.equal(0)
+  })
+
 })
