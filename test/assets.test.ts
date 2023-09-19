@@ -39,6 +39,7 @@ describe("test the functions related to assets management", function () {
   }
 
 
+  
   it("Assets functions test: part `Share`", async function () {
     const { MasterToken, Assets, owner, carol, david } = await loadFixture(deployAssets)
 
@@ -69,6 +70,7 @@ describe("test the functions related to assets management", function () {
   })
 
 
+
   it("Assets function test: part `Energy`", async function () {
     const { MasterToken, Assets, owner, carol } = await loadFixture(deployAssets)
 
@@ -97,6 +99,7 @@ describe("test the functions related to assets management", function () {
     await Assets._claimAll()
     expect(await MasterToken.balanceOf(owner.address)).to.equal(ethers.parseEther('7'))
   })
+
 
 
   it("Assets function test: part `Slots`", async function () {
