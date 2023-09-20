@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "../interface/IERC6551Account.sol";
@@ -10,6 +11,7 @@ import "../interface/IERC6551Executable.sol";
 
 contract MasterBotTokenBoundAccount is
     IERC165,
+    IERC721Receiver,
     IERC1271,
     IERC6551Account,
     IERC6551Executable
@@ -107,6 +109,15 @@ contract MasterBotTokenBoundAccount is
 
     function _isValidSigner(address signer) internal view returns (bool) {
         return signer == owner();
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) public pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
 }
