@@ -78,6 +78,8 @@ contract MasterBotTokenBoundAccount is
         returns (bool)
     {
         return (interfaceId == type(IERC165).interfaceId ||
+            interfaceId == type(IERC721Receiver).interfaceId ||
+            interfaceId == type(IERC1271).interfaceId ||
             interfaceId == type(IERC6551Account).interfaceId ||
             interfaceId == type(IERC6551Executable).interfaceId);
     }
