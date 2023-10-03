@@ -34,3 +34,15 @@ Deploy [ ERC721] FunctionBot NFT (FunctionBotNFT.sol)
 Deploy [ ERC20 ] MasterToken (MasterToken.sol)
 Deploy [  ---  ] Assets for MTB (Share.sol)
 ```
+
+## Flatten the code
+
+```bash
+mkdir ./contracts/flatten
+npx hardhat flatten ./contracts/tokenbound/MasterBotNFT.sol > ./contracts/flatten/FlattenMasterBotNFT.sol
+npx hardhat flatten ./contracts/tokenbound/MasterBotTBA.sol > ./contracts/flatten/FlattenMasterBotTBA.sol
+npx hardhat flatten ./contracts/tokenbound/ERC6551Registry.sol > ./contracts/flatten/FlattenERC6551Registry.sol
+npx hardhat flatten ./contracts/assets/MasterToken.sol > ./contracts/flatten/FlattenMasterToken.sol
+npx hardhat flatten ./contracts/assets/FunctionBot.sol > ./contracts/flatten/FlattenFunctionBot.sol
+npx hardhat flatten ./contracts/assets/Assets.sol > ./contracts/flatten/FlattenAssets.sol
+```
