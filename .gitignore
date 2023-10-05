@@ -19,4 +19,4 @@ artifacts/
 cache
 typechain-types
 
-contracts/flatten
+flattened

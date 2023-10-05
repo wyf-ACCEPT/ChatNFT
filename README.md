@@ -1,7 +1,13 @@
 # ChatNFT
 
+## Run tests
+```bash
+npx hardhat compile
+npx hardhat test
+```
+
 ## File structure
-```Rust
+```rust
 contracts
 ├── assets
 │   ├── Assets.sol
@@ -39,10 +45,10 @@ Deploy [  ---  ] Assets for MTB (Share.sol)
 
 ```bash
 mkdir ./contracts/flatten
-npx hardhat flatten ./contracts/tokenbound/MasterBotNFT.sol > ./contracts/flatten/FlattenMasterBotNFT.sol
-npx hardhat flatten ./contracts/tokenbound/MasterBotTBA.sol > ./contracts/flatten/FlattenMasterBotTBA.sol
-npx hardhat flatten ./contracts/tokenbound/ERC6551Registry.sol > ./contracts/flatten/FlattenERC6551Registry.sol
-npx hardhat flatten ./contracts/assets/MasterToken.sol > ./contracts/flatten/FlattenMasterToken.sol
-npx hardhat flatten ./contracts/assets/FunctionBot.sol > ./contracts/flatten/FlattenFunctionBot.sol
-npx hardhat flatten ./contracts/assets/Assets.sol > ./contracts/flatten/FlattenAssets.sol
+npx hardhat flatten ./contracts/tokenbound/MasterBotNFT.sol > ./flattened/FlattenMasterBotNFT.sol
+npx hardhat flatten ./contracts/tokenbound/MasterBotTBA.sol > ./flattened/FlattenMasterBotTBA.sol
+npx hardhat flatten ./contracts/tokenbound/ERC6551Registry.sol > ./flattened/FlattenERC6551Registry.sol
+npx hardhat flatten ./contracts/assets/MasterToken.sol > ./flattened/FlattenMasterToken.sol
+npx hardhat flatten ./contracts/assets/FunctionBot.sol > ./flattened/FlattenFunctionBot.sol
+npx hardhat flatten ./contracts/assets/Assets.sol > ./flattened/FlattenAssets.sol
 ```
