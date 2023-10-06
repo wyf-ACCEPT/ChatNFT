@@ -2,6 +2,9 @@ build/
 contracts/build/
 node_modules/
 artifacts/
+abi/@openzeppelin
+abi/contracts/assets/Archive
+abi/contracts/interface
 
 .prettierrc.json
 
@@ -20,3 +23,4 @@ cache
 typechain-types
 
 flattened
+privateKey.txt

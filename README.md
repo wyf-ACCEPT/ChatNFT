@@ -44,7 +44,8 @@ Deploy [  ---  ] Assets for MTB (Share.sol)
 ## Flatten the code
 
 ```bash
-mkdir ./contracts/flatten
+# To upload flattened code to blockchain explorer
+mkdir -p ./flattened
 npx hardhat flatten ./contracts/tokenbound/MasterBotNFT.sol > ./flattened/FlattenMasterBotNFT.sol
 npx hardhat flatten ./contracts/tokenbound/MasterBotTBA.sol > ./flattened/FlattenMasterBotTBA.sol
 npx hardhat flatten ./contracts/tokenbound/ERC6551Registry.sol > ./flattened/FlattenERC6551Registry.sol
