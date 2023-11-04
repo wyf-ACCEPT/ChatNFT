@@ -51,4 +51,16 @@ contract FunctionBot is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     {
         return super.supportsInterface(interfaceId);
     }
+
+    function tokenListOfOwner(address owner) 
+        public 
+        view 
+        returns (uint256 [] memory) 
+    {
+        uint256 [] memory tokenList = new uint256[](ERC721.balanceOf(owner));
+        for (uint256 i = 0; i < ERC721.balanceOf(owner); i++) {
+            tokenList[i] = tokenOfOwnerByIndex(owner, i);
+        }
+        return tokenList;
+    }
 }
